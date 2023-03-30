@@ -9,8 +9,15 @@ dotenv.config()
 
 
 
-const REGION = "ca-central-1";
-const ses = new SESClient({region: REGION})
+const ses = new SESClient({
+
+    region: process.env.MY_REGION,
+    credentials:{
+        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY
+    }
+
+})
 
 
 router.post('/email', async (req, res) => {
