@@ -37,19 +37,6 @@ router.post('/email', async (req, res) => {
 
 })
 
-router.post('/test', (req,res) => {
-
-    let {name, email, message, receiveCopy} = req.body
-
-
-    if(receiveCopy === false){
-        email = ''
-    }
-
-    console.log('email', email)
-
-    res.json({msg: 'sent!'})
-})
 
 async function sendEmail(name, mailTo, message){
 
