@@ -3,6 +3,9 @@ import cors from 'cors'
 
 import router from './router/route.js'
 
+import dotenv from 'dotenv';
+dotenv.config()
+
 // import { SESClient } from "@aws-sdk/client-ses";
 // const REGION = "us-east-1";
 // const sesClient = new SESClient({ region: REGION });

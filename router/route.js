@@ -1,64 +1,86 @@
 import express from 'express'
 const router = express.Router()
 
-import aws from "aws-sdk";
-
 import {SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
+
+import dotenv from 'dotenv';
+dotenv.config()
+
+
 
 
 const REGION = "ca-central-1";
 const ses = new SESClient({region: REGION})
 
 
-router.post('/email', (req, res) => {
+router.post('/email', async (req, res) => {
 
-    const {name, email, message} = req.body
-    console.log(`name: ${name}, email: ${email}, message: ${message}`)
+    const {name, email, message, receiveCopy} = req.body
+    const mailTo = [process.env.MY_EMAIL]
 
-    // res.send('email page')
+    if(receiveCopy === true){
+        mailTo.push(email)
+    }
 
-    sendEmail(name, email, message)
+    try{
 
+        const result = await sendEmail(name, mailTo, message)
+        res.status(200).json({
+            msg:'Thank you! I received your message!'
+        })
+
+    } catch(err){
+        res.json({
+            msg: 'Ops, something went wrong'
+        })
+    }
 
 })
 
+router.post('/test', (req,res) => {
 
-async function sendEmail(name, email, message){
+    let {name, email, message, receiveCopy} = req.body
+
+
+    if(receiveCopy === false){
+        email = ''
+    }
+
+    console.log('email', email)
+
+    res.json({msg: 'sent!'})
+})
+
+async function sendEmail(name, mailTo, message){
 
     const params = {
 
         Destination: {
-            ToAddresses: [email]
+            ToAddresses: mailTo
         },
 
         Message: {
             Subject:{
-                Data: `Hey ${name} I got your message! `
+                Data: `Message Received`
             },
             Body: {
                 Text: {
-                    Data:`Thank you for your message!  You wrote: ${message}`
+                    Data:`Hey ${name}, \n \n Thank you for your message! \nYou wrote: ${message} \n \nJeremy`
                 }
                 
             },
             
         },
 
-        Source: 'jeremyshen1987@gmail.com'
+        Source: process.env.MY_EMAIL
     }
 
     const command = new SendEmailCommand(params)
 
 
-    try{
+    return ses.send(command)
 
-        ses.send(command)
 
-    } catch(err){
-        console.log('oops error: ', err)
-    } finally{
-        console.log('sendemail function complete')
-    }
 }
 
 
